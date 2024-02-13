@@ -74,6 +74,7 @@ declare_deploy:
 	$(MAKE) deployy class_hash=$$CLASS_HASH args=${args} rpc=${rpc} account=${account}
 
 
+# not working for now with several args, need to find a way to read input several args
 declare_deploy_prompt:
 	@echo "Please enter the contract name "
 	@read -p "If the contract is in a folder the contract name must be formated like this folderName_contractName: " CONTRACT; \
