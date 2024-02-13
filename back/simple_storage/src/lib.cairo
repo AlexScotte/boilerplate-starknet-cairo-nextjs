@@ -24,3 +24,35 @@ mod SimpleStorage {
         }
     }
 }
+
+#[starknet::contract]
+mod SimpleStorage2 {
+    use starknet::get_caller_address;
+    use starknet::ContractAddress;
+
+    #[storage]
+    struct Storage {
+        stored_data: u128
+    }
+
+     #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        number_1: u128,
+        number_2: u128,
+    ) {
+        self.stored_data.write(number_1);
+        self.stored_data.write(number_2);
+    }
+
+    #[abi(embed_v0)]
+    impl SimpleStorage of super::ISimpleStorage<ContractState> {
+
+        fn set(ref self: ContractState, x: u128) {
+            self.stored_data.write(x);
+        }
+        fn get(self: @ContractState) -> u128 {
+            self.stored_data.read()
+        }
+    }
+}
