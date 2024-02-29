@@ -14,6 +14,13 @@ mod SimpleStorage {
         stored_data: u128
     }
 
+     #[constructor]
+    fn constructor(
+        ref self: ContractState
+    ) {
+        self.stored_data.write(1);
+    }
+
     #[abi(embed_v0)]
     impl SimpleStorage of super::ISimpleStorage<ContractState> {
         fn set(ref self: ContractState, x: u128) {

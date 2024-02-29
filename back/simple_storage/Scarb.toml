@@ -9,3 +9,8 @@ edition = "2023_11"
 starknet = ">=2.4.0"
 
 [[target.starknet-contract]]
+# Enable Sierra codegen.
+sierra = true
+
+# Enable CASM codegen.
+casm = true

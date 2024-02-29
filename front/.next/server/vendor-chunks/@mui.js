@@ -1128,7 +1128,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 /* __next_internal_client_entry_do_not_use__ default,appBarClasses,* auto */ const { createProxy } = __webpack_require__(/*! next/dist/build/webpack/loaders/next-flight-loader/module-proxy */ "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-loader/module-proxy.js");
-module.exports = createProxy("/home/scott/dev/cairo-boilerplate-react-next/cairo-boilerplate-react-next/node_modules/@mui/material/AppBar/index.js");
+module.exports = createProxy("/home/scott/dev/cairo-boilerplate-react-next/front/node_modules/@mui/material/AppBar/index.js");
 
 
 /***/ }),
@@ -1140,7 +1140,7 @@ module.exports = createProxy("/home/scott/dev/cairo-boilerplate-react-next/cairo
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 /* __next_internal_client_entry_do_not_use__ default,boxClasses,* auto */ const { createProxy } = __webpack_require__(/*! next/dist/build/webpack/loaders/next-flight-loader/module-proxy */ "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-loader/module-proxy.js");
-module.exports = createProxy("/home/scott/dev/cairo-boilerplate-react-next/cairo-boilerplate-react-next/node_modules/@mui/material/Box/index.js");
+module.exports = createProxy("/home/scott/dev/cairo-boilerplate-react-next/front/node_modules/@mui/material/Box/index.js");
 
 
 /***/ }),
@@ -1161,7 +1161,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var next_dist_build_webpack_loaders_next_flight_loader_module_proxy__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! next/dist/build/webpack/loaders/next-flight-loader/module-proxy */ "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-loader/module-proxy.js");
 
-const proxy = (0,next_dist_build_webpack_loaders_next_flight_loader_module_proxy__WEBPACK_IMPORTED_MODULE_0__.createProxy)(String.raw`/home/scott/dev/cairo-boilerplate-react-next/cairo-boilerplate-react-next/node_modules/@mui/material/Stack/index.js`)
+const proxy = (0,next_dist_build_webpack_loaders_next_flight_loader_module_proxy__WEBPACK_IMPORTED_MODULE_0__.createProxy)(String.raw`/home/scott/dev/cairo-boilerplate-react-next/front/node_modules/@mui/material/Stack/index.js`)
 
 // Accessing the __esModule property and exporting $$typeof are required here.
 // The __esModule getter forces the proxy target to create the default export
@@ -1172,7 +1172,7 @@ const __default__ = proxy.default;
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (__default__);
-const e0 = (0,next_dist_build_webpack_loaders_next_flight_loader_module_proxy__WEBPACK_IMPORTED_MODULE_0__.createProxy)(String.raw`/home/scott/dev/cairo-boilerplate-react-next/cairo-boilerplate-react-next/node_modules/@mui/material/Stack/index.js#stackClasses`);
+const e0 = (0,next_dist_build_webpack_loaders_next_flight_loader_module_proxy__WEBPACK_IMPORTED_MODULE_0__.createProxy)(String.raw`/home/scott/dev/cairo-boilerplate-react-next/front/node_modules/@mui/material/Stack/index.js#stackClasses`);
 
 
 /***/ }),
@@ -1192,7 +1192,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var next_dist_build_webpack_loaders_next_flight_loader_module_proxy__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! next/dist/build/webpack/loaders/next-flight-loader/module-proxy */ "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-loader/module-proxy.js");
 
-const proxy = (0,next_dist_build_webpack_loaders_next_flight_loader_module_proxy__WEBPACK_IMPORTED_MODULE_0__.createProxy)(String.raw`/home/scott/dev/cairo-boilerplate-react-next/cairo-boilerplate-react-next/node_modules/@mui/material/Toolbar/Toolbar.js`)
+const proxy = (0,next_dist_build_webpack_loaders_next_flight_loader_module_proxy__WEBPACK_IMPORTED_MODULE_0__.createProxy)(String.raw`/home/scott/dev/cairo-boilerplate-react-next/front/node_modules/@mui/material/Toolbar/Toolbar.js`)
 
 // Accessing the __esModule property and exporting $$typeof are required here.
 // The __esModule getter forces the proxy target to create the default export

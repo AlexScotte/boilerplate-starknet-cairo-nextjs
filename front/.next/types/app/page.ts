@@ -1,4 +1,4 @@
-// File: /home/scott/dev/cairo-boilerplate-react-next/cairo-boilerplate-react-next/app/page.tsx
+// File: /home/scott/dev/cairo-boilerplate-react-next/front/app/page.tsx
 import * as entry from '../../../app/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
