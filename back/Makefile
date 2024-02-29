@@ -76,8 +76,9 @@ declare_deploy:
 
 # not working for now with several args, need to find a way to read input several args
 declare_deploy_prompt:
-	@echo "Please enter the contract name "
-	@read -p "If the contract is in a folder the contract name must be formated like this folderName_contractName: " CONTRACT; \
+	@read -p "Please enter the path folder to your contract: " PACKAGE; \
+	export PACKAGE; \
+	read -p "Please enter the contract name: " CONTRACT; \
 	export CONTRACT; \
 	read -p "Please enter the RPC url: " RPC_URL; \
 	export RPC_URL; \
@@ -85,11 +86,14 @@ declare_deploy_prompt:
 	export ACCOUNT_NAME; \
 	read -p "Please enter constructor args if necessary: " ARGS; \
 	export ARGS; \
-	$(MAKE) declare_deploy contract=$$CONTRACT args=$$ARGS rpc=$$RPC_URL account=$$ACCOUNT_NAME 
+	$(MAKE) declare_deploy package=$$PACKAGE contract=$$CONTRACT args=$$ARGS rpc=$$RPC_URL account=$$ACCOUNT_NAME 
 
 declare:
+ifndef package
+	$(error You need to specify the folder path to your contract (ex: package=folder1))
+endif
 ifndef contract
-	$(error You need to specify the contract name (ex: contract=folderName_contractName))
+	$(error You need to specify the contract name (ex: contract=contractName))
 endif
 ifndef rpc
 	$(error You need to specify the RPC URL (ex: rpc=http://0.0.0.0:5050))
@@ -98,7 +102,7 @@ ifndef account
 	$(error You need to specify an account name (ex: account=account0))
 endif
 
-	starkli declare target/dev/${contract}.contract_class.json --rpc ${rpc} --account ~/.starkli-wallets/deployer/${account}_account.json --keystore ~/.starkli-wallets/deployer/${account}_keystore.json
+	starkli declare ${package}/target/dev/${package}_${contract}.contract_class.json --rpc ${rpc} --account ~/.starkli-wallets/deployer/${account}_account.json --keystore ~/.starkli-wallets/deployer/${account}_keystore.json
 
 deployy:
 ifndef class_hash
