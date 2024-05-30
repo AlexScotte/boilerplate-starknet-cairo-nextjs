@@ -1,24 +1,24 @@
 #source .env in .env directory
 -include .env
 
-RUN_LOCAL_NODE := katana
-# Conditionally add args  if the variables are set
-ifneq ($(strip $(accounts)),)
-    RUN_LOCAL_NODE += --accounts $(accounts)
-endif
-ifneq ($(strip $(seed)),)
-    RUN_LOCAL_NODE += --seed $(seed)
-endif
-ifneq ($(strip $(gas_price)),)
-    RUN_LOCAL_NODE += --gas-price $(gas_price)
-endif
+.PHONY: help test coverage node deploy
 
-local_node:
-	$(RUN_LOCAL_NODE)
+help:
+	@echo "Usage:"
+	@echo "  make node"
+	@echo "    Deploy a local starkNet-devnet node with 3 prefunded accounts"
+	@echo "\n"
+	@echo "  make deploy [chain=...]"
+	@echo "    example: make deploy -> to deploy by default on localhost"
+	@echo "	     make deploy chain=sepolia -> to deploy on sepolia"
+	@echo "\n"
+	@echo "  make getset [chain=...] [addr=...]"
+	@echo "    example: make getset chain=localhost addr=0x2f...ef-> to interact with the contract on the specified chain"
+	@echo "\n"
 
-rpc:
-	echo ${LOCAL_RPC}
-	
+node:
+	starknet-devnet --seed 3
+		
 version:
 	scarb --version 
 	starkli --version 
@@ -69,9 +69,9 @@ endif
 
 declare_deploy:
 	make declare contract=${contract} rpc=${rpc} account=${account} args=
-	@read -p "Please enter the contract class hash: " CLASS_HASH; \
-	export CLASS_HASH; \
-	$(MAKE) deployy class_hash=$$CLASS_HASH args=${args} rpc=${rpc} account=${account}
+	# @read -p "Please enter the contract class hash: " CLASS_HASH; \
+	# export CLASS_HASH; \
+	# $(MAKE) deployy class_hash=$$CLASS_HASH args=${args} rpc=${rpc} account=${account}
 
 
 # not working for now with several args, need to find a way to read input several args
@@ -123,3 +123,23 @@ endif
 
 	starkli deploy ${class_hash} ${args} --rpc ${rpc} --account ~/.starkli-wallets/deployer/${account}_account.json --keystore ~/.starkli-wallets/deployer/${account}_keystore.json
 
+
+
+deploy:
+ifdef chain
+	@echo Deploying contract on ${chain}
+else
+	@echo No chain specified, using localhost by default (ex: chain=sepolia)
+endif
+	@node scripts/deploy.js ${chain}
+
+getset:
+ifdef chain
+	@echo Testing contract on ${chain}
+else
+	@echo No chain specified, testing on localhost by default (ex: chain=sepolia)
+endif
+ifndef addr
+	$(error You need to specify the contract address (ex: addr=0x2f6905caa9981af1ade028c3c609b4c8b0096e8ba3dff6aa22e9a7f86d2667d))
+endif
+	@node scripts/simpleStorage.js ${chain} ${addr}
