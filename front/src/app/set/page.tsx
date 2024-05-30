@@ -1,9 +1,9 @@
 'use client';
 import Layout from "@/app/components/Layout";
 import { useContext, useEffect, useState } from "react";
-// import { ContractContext } from "@/components/contexts/contractContext";
-import { Contract as Ctrct, ValueChangedEventType, LogWithArgs } from "@/types/contract";
-import { Account, Abi, Contract as StrkContract, DeclareContractResponse, InvokeFunctionResponse, RPC, constants, hash, num } from "starknet";
+import { ContractContext } from "@/app/components/contexts/ContractContext";
+import { Contract, ValueChangedEventType } from "@/types/contract";
+import { events, CallData, Account, Abi, Contract as StrkContract, InvokeFunctionResponse, hash, num } from "starknet";
 
 import {
   Button,
@@ -22,53 +22,51 @@ import {
   Toast
 } from "@chakra-ui/react";
 
-// import {
-//   useAccount,
-//   useWriteContract,
-//   useWaitForTransactionReceipt,
-//   useWatchContractEvent,
-//   useBlockNumber,
-// } from "wagmi";
-// import {
-//   type Abi,
-// } from 'abitype'
-
-// import { createPublicClient, http, Log, parseAbiItem, Chain } from "viem";
-import { GetExpectedChainIdWithEnv, ToShortAddress, GetFriendlyChainName } from "@/utils/utils";
+import { GetExpectedChainNameWithEnv, ToShortAddress, GetFriendlyChainName } from "@/utils/utils";
 import { DescriptionSmallTextStyle, DescriptionTextStyle, MainButtonStyle, MainCardStyle, MainInputFieldStyle, MainInputStyle, MainListStyle, MainNumberIncrementStepperStyle, MainTextStyle, ToastErrorStyle, ToastInfoStyle, ToastSuccessStyle, ToastWarningStyle } from "@/app/components/style";
 
-import { test1Abi } from "@/app/test1";
-import { addrTESTCONTRACT } from '@/type/constants';
 import { useStoreWallet } from "@/app/components/connect-wallet/walletContext";
-import { GetTransactionReceiptResponse, json, type RejectedTransactionReceiptResponse, type RevertedTransactionReceiptResponse, type SuccessfulTransactionReceiptResponse } from "starknet";
+import {
+  GetTransactionReceiptResponse,
+  json,
+  type RejectedTransactionReceiptResponse,
+  type RevertedTransactionReceiptResponse,
+  type SuccessfulTransactionReceiptResponse
+} from "starknet";
 
-const contractAddress = addrTESTCONTRACT;
 const Set = () => {
   const toast = useToast();
   const isConnected = useStoreWallet(state => state.isConnected);
   const chainId = useStoreWallet(state => state.chainId);
-  const expectedChainName = GetExpectedChainIdWithEnv();
+  const expectedChainName = GetExpectedChainNameWithEnv();
   // const { simpleStorageDeployedBlockNumber, simpleStorageAddress, simpleStorageAbi } = useContext<Contract>(ContractContext);
+  const { simpleStorageAddress, simpleStorageAbi } = useContext<Contract>(ContractContext);
+
   const [newValue, setNewValue] = useState<number>(0);
   const [valueChangedEventList, setValueChangedEventList] = useState<ValueChangedEventType[]>([]);
   // const { data } = useBlockNumber();
   const accountWallet = useStoreWallet(state => state.account);
   const publicProvider = useStoreWallet(state => state.publicProvider);
+  const walletProvider = useStoreWallet(state => state.walletProvider);
   const [transactionHash, setTransactionHash] = useState<string>("");
-  // const {
-  //   data: hash,
-  //   error: setStoredValueError,
-  //   isPending: isStoredValuePending,
-  //   writeContract } = useWriteContract()
 
-  const [cairo1WriteContract, setcairo1WriteContract] = useState<StrkContract>(
-    new StrkContract(
-      test1Abi,
-      contractAddress,
-      publicProvider
-    )
-  );
+  const [writeContract, setWriteContract] = useState<StrkContract>();
 
+  useEffect(() => {
+
+    const createContract = async () => {
+
+      setWriteContract(new StrkContract(
+        simpleStorageAbi,
+        simpleStorageAddress,
+        walletProvider
+      ))
+    };
+
+    if (simpleStorageAddress) {
+      createContract();
+    }
+  }, [simpleStorageAbi]);
 
 
   /********************
@@ -83,88 +81,60 @@ const Set = () => {
 
     const getEventHistory = async () => {
 
-      //     let publicNode = http();
-      //     if (expectedChainId === ChainID.Sepolia) {
-      //       publicNode = http("https://gateway.tenderly.co/public/sepolia");
-      //     }
-
-      //     const publicClient = createPublicClient({
-      //       chain: expectedChainViem as Chain,
-      //       transport: publicNode,
-      //     })
-
-      //     const logs = await publicClient.getLogs({
-      //       address: simpleStorageAddress as `0x${string}`,
-      //       event: parseAbiItem('event valueChanged(uint256 oldValue, uint256 newValue, address who)'),
-      //       // fromBlock: simpleStorageDeployedBlockNumber ? BigInt(simpleStorageDeployedBlockNumber) : undefined,
-      //       fromBlock: BigInt(0),
-      //       toBlock: 'latest',
-      //     });
-
-      //     let oldEventList: ValueChangedEventType[] = [];
-      //     logs.forEach(log => {
-      //       const valueChangedEvent = createEvent(log as LogWithArgs);
-      //       oldEventList.push(valueChangedEvent);
-      //     });
-
-      //     setValueChangedEventList(oldEventList.reverse());
-
       const lastBlock = await publicProvider.getBlock('latest');
-      const keyFilter = [num.toHex(hash.starknetKeccak('EventPanic')), '0x8'];
+      const keyFilter = [num.toHex(hash.starknetKeccak('ValueChanged')), '0x8'];
       const eventsList = await publicProvider.getEvents({
-        address: addrTESTCONTRACT,
+        address: simpleStorageAddress,
         from_block: { block_number: lastBlock.block_number - 800 },
         to_block: { block_number: lastBlock.block_number },
         keys: [keyFilter],
         chunk_size: 800,
       });
-      console.log(eventsList);
+
+      console.log("rawEvents =", eventsList.events);
+      const sierra = await publicProvider.getClassAt(simpleStorageAddress);
+      const abiEvents = events.getAbiEvents(sierra.abi);
+      const abiStructs = CallData.getAbiStruct(sierra.abi);
+      const abiEnums = CallData.getAbiEnum(sierra.abi);
+      const parsedEvents = events.parseEvents(eventsList.events, abiEvents, abiStructs, abiEnums)
+      console.log("parsed events =", parsedEvents);
+
+      let oldEventList: ValueChangedEventType[] = [];
+      parsedEvents.forEach(event => {
+        const valueChangedEvent = createEvent(event);
+        oldEventList.push(valueChangedEvent);
+      });
+
+      setValueChangedEventList(oldEventList.reverse());
     };
 
-    if (addrTESTCONTRACT) {
+    if (simpleStorageAddress) {
       getEventHistory();
     }
 
 
 
-  }, [addrTESTCONTRACT]);
-
-
-  /**
-   * Manage the valueChanged event of the contract
-   */
-  // useWatchContractEvent({
-  //   address: simpleStorageAddress as `0x${string}`,
-  //   abi: simpleStorageAbi as unknown as Abi,
-  //   eventName: 'valueChanged',
-  //   onLogs(logs: Log[]) {
-  //     manageValueChangedEvent(logs[0] as LogWithArgs);
-  //   }
-  // })
+  }, [simpleStorageAddress]);
 
   /**
-  * Build list event data
+  * Add incoming event to the events list
   */
-  const manageValueChangedEvent = (log: LogWithArgs) => {
+  const manageValueChangedEvent = (event: any) => {
 
-    // const valueChangedEvent = createEvent(log);
-
-    // if (!valueChangedEventList.some(v => v.txHash === valueChangedEvent.txHash)) {
-    //   setValueChangedEventList([valueChangedEvent, ...valueChangedEventList]);
-    // }
+    const valueChangedEvent = createEvent(event);
+    setValueChangedEventList([valueChangedEvent, ...valueChangedEventList]);
   }
 
 
 
-  // const createEvent = (log: LogWithArgs): ValueChangedEventType => {
-  //   const valueChangedEvent: ValueChangedEventType = {
-  //     txHash: log.transactionHash?.toString(),
-  //     oldValue: log.args.oldValue,
-  //     newValue: log.args.newValue,
-  //     from: log.args.who
-  //   }
-  //   return valueChangedEvent;
-  // }
+  const createEvent = (event: any): ValueChangedEventType => {
+    const valueChangedEvent: ValueChangedEventType = {
+      oldValue: event.ValueChanged.oldValue,
+      newValue: event.ValueChanged.newValue,
+      from: num.toHexString(event.ValueChanged.caller)
+    }
+    return valueChangedEvent;
+  }
   /********************* */
 
 
@@ -174,6 +144,10 @@ const Set = () => {
    *******************************/
 
   useEffect(() => {
+
+    if (!writeContract)
+      return;
+
     publicProvider?.waitForTransaction(transactionHash)
       .then((txR: GetTransactionReceiptResponse) => {
         console.log("TxStatus =", txR.statusReceipt);
@@ -205,7 +179,7 @@ const Set = () => {
             style = ToastErrorStyle;
           },
           error: (err: Error) => {
-            console.log("aaaaaaa", err.message)
+
             finality = err.message;
             title = "Transaction error !";
             description = `Reason: ${finality}`;
@@ -221,7 +195,10 @@ const Set = () => {
         console.log("TxFinality =", finality);
         toast.closeAll();
 
-        const events = cairo1WriteContract.parseEvents(txR);
+        const parsedEvents = writeContract.parseEvents(txR);
+        parsedEvents.forEach((event: any) => {
+          manageValueChangedEvent(event);
+        });
         console.log(events);
 
         toast({
@@ -259,6 +236,9 @@ const Set = () => {
    */
   const setStoredValue = async () => {
 
+    if (!writeContract)
+      return;
+
     if (!isConnected) {
 
       toast({
@@ -270,20 +250,22 @@ const Set = () => {
     }
     else {
 
-      if (GetFriendlyChainName(chainId) !== expectedChainName) {
+      // if (GetFriendlyChainName(chainId) !== expectedChainName) {
 
-        toast.closeAll();
-        toast({
-          title: "Wrong network",
-          description: `Please switch to ${expectedChainName} network`,
-          status: "warning",
-          duration: 9999999,
-          containerStyle: ToastWarningStyle
-        })
-        return;
-      }
+      //   toast.closeAll();
+      //   toast({
+      //     title: "Wrong network",
+      //     description: `Please switch to ${expectedChainName} network`,
+      //     status: "warning",
+      //     duration: 9999999,
+      //     containerStyle: ToastWarningStyle
+      //   })
+      //   return;
+      // }
 
-      const call = cairo1WriteContract.populate("set", [newValue]);
+      console.log(walletProvider)
+
+      const call = writeContract.populate("set", [newValue]);
       console.log("Call=", call);
       accountWallet?.execute(call, undefined, { version: 3 })
         .then((resp: InvokeFunctionResponse) => {
@@ -342,7 +324,6 @@ const Set = () => {
             <Button
               sx={MainButtonStyle}
               onClick={() => setStoredValue()}>
-              {/* // isLoading={isStoredValuePending} */}
               Set
             </Button>
 

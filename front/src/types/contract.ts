@@ -1,4 +1,4 @@
-import { Log } from "viem";
+import { Account, Abi, Contract as StrkContract } from "starknet";
 
 export type Contract = {
     simpleStorageDeployedBlockNumber: number;
@@ -9,16 +9,7 @@ export type Contract = {
 };
 
 export type ValueChangedEventType = {
-    txHash: string | undefined,
     oldValue: bigint | undefined;
     newValue: bigint | undefined;
     from: string,
-}
-
-export interface LogWithArgs extends Log {
-    args: {
-        oldValue: bigint | undefined;
-        newValue: bigint | undefined;
-        who: string;
-    };
 }

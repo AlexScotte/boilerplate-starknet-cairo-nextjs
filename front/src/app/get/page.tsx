@@ -1,22 +1,24 @@
 'use client';
 import { useContext, useEffect, useState } from "react";
 import { ContractContext } from "@/app/components/contexts/ContractContext";
-import { Account, Abi, Contract as StrkContract } from "starknet";
+import { Contract as StrkContract } from "starknet";
 
 import { Contract as Ctrct } from "@/types/contract";
 import Layout from "@/app/components/Layout";
 import { Button, Text, Flex, Center } from "@chakra-ui/react";
 import { useToast } from "@chakra-ui/react";
-import { Card, CardHeader, CardBody, CardFooter } from '@chakra-ui/react'
+import { Card, CardBody } from '@chakra-ui/react'
 
-import { DescriptionTextStyle, MainButtonStyle, MainCardStyle, ToastErrorStyle, ToastWarningStyle } from "@/app/components/style";
+import {
+  DescriptionTextStyle,
+  MainButtonStyle,
+  MainCardStyle,
+  ToastErrorStyle,
+  ToastWarningStyle
+} from "@/app/components/style";
 
 import { useStoreWallet } from "@/app/components/connect-wallet/walletContext";
 
-import { test1Abi } from "@/app/test1";
-import { addrTESTCONTRACT } from '@/type/constants';
-
-const contractAddress = addrTESTCONTRACT;
 const Get = () => {
 
   const toast = useToast();
@@ -28,18 +30,35 @@ const Get = () => {
   const chainId = useStoreWallet(state => state.chainId);
   const publicProvider = useStoreWallet(state => state.publicProvider);
 
-  const [readContract] = useState<StrkContract>(
-    new StrkContract(
-      test1Abi,
-      contractAddress,
-      publicProvider
-    )
-  );
+  const [readContract, setReadContract] = useState<StrkContract>();
+
+  useEffect(() => {
+
+    const createContract = async () => {
+
+      setReadContract(new StrkContract(
+        simpleStorageAbi,
+        simpleStorageAddress,
+        publicProvider
+      ))
+    };
+
+    if (simpleStorageAddress) {
+      createContract();
+    }
+  }, [simpleStorageAbi]);
+
 
   /**
    * Get the stored value from the contract
    */
   const getStoredValue = async () => {
+
+
+    if (!readContract)
+      return;
+
+    console.log(publicProvider);
 
     setstoredValueLoading(true);
     readContract.get()

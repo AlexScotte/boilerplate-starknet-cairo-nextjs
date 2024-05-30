@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation';
 import { HeaderBorderStyle, MainTextStyle, NavItemActiveStyle, NavItemNonActiveStyle, ToastWarningStyle } from "@/app/components/style";
 import { useToast } from "@chakra-ui/react";
-import { GetExpectedChainIdWithEnv, GetFriendlyChainName } from "@/utils/utils";
+import { GetExpectedChainNameWithEnv, GetFriendlyChainName } from "@/utils/utils";
 import ConnectWallet from "./connect-wallet/ConnectWallet";
 import { useStoreWallet } from "./connect-wallet/walletContext";
 
@@ -14,7 +14,7 @@ const Header = () => {
 
     const currentRoute = usePathname();
     const toast = useToast();
-    const expectedChainName = GetExpectedChainIdWithEnv();
+    const expectedChainName = GetExpectedChainNameWithEnv();
     const chainId = useStoreWallet(state => state.chainId);
     const publicProvider = useStoreWallet(state => state.publicProvider);
 

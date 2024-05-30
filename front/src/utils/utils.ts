@@ -11,14 +11,14 @@ export enum ChainName {
  * Get the expected chain id in function of the current environment
  * @returns The expected chain id in function of the current environment
  */
-export const GetExpectedChainIdWithEnv = () => {
+export const GetExpectedChainNameWithEnv = () => {
     if (process.env.NODE_ENV === "production") {
         return ChainName.SEPOLIA;
     } else {
 
         // TODO: Cannot interact with extension wallet on Devnet/localhost
         return ChainName.SEPOLIA;
-        // return ChainName.LOCALHOST;
+        //return ChainName.LOCALHOST;
     }
 };
 
@@ -32,8 +32,8 @@ export const GetRPCProviderWithEnv = () => {
     } else {
 
         // TODO: Cannot interact with extension wallet on Devnet/localhost
-        return process.env.NEXT_PUBLIC_PROVIDER_SEPOLIA_RPC;
-        // return "http://127.0.0.1:5050",
+        //return process.env.NEXT_PUBLIC_PROVIDER_SEPOLIA_RPC;
+        return process.env.NEXT_PUBLIC_PROVIDER_LOCAL_RPC;
     }
 };
 
@@ -62,6 +62,22 @@ export const GetFriendlyChainName = (chainId: string) => {
     }
     else if (chainId === SNconstants.NetworkName.SN_GOERLI || chainId === SNconstants.StarknetChainId.SN_GOERLI) {
         return ChainName.GOERLI;
+    }
+    else {
+        return "Unknown";
+    }
+};
+
+export const GetChainIdFromName = (chainName: ChainName) => {
+
+    if (chainName === ChainName.MAINNET) {
+        return SNconstants.StarknetChainId.SN_MAIN;
+    }
+    else if (chainName === ChainName.SEPOLIA) {
+        return SNconstants.StarknetChainId.SN_SEPOLIA;
+    }
+    else if (chainName === ChainName.GOERLI) {
+        return SNconstants.StarknetChainId.SN_GOERLI;
     }
     else {
         return "Unknown";
