@@ -1,0 +1,11 @@
+{
+    "name": "backend",
+    "version": "1.0.0",
+    "main": "index.js",
+    "license": "MIT",
+    "type": "module",
+    "dependencies": {
+        "dotenv": "^16.4.5",
+        "starknet": "^6.8.0"
+    }
+}
