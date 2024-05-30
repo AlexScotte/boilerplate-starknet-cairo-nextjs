@@ -41,23 +41,45 @@
     },
     {
       "type": "event",
+      "name": "simple_storage::SimpleStorage::ValueChanged",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "caller",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "key"
+        },
+        {
+          "name": "oldValue",
+          "type": "core::integer::u128",
+          "kind": "data"
+        },
+        {
+          "name": "newValue",
+          "type": "core::integer::u128",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
       "name": "simple_storage::SimpleStorage::Event",
       "kind": "enum",
-      "variants": []
+      "variants": [
+        {
+          "name": "ValueChanged",
+          "type": "simple_storage::SimpleStorage::ValueChanged",
+          "kind": "nested"
+        }
+      ]
     }
   ],
   "networks": {
-    "31337": {
+    "0": {
       "network": "localhost",
-      "address": "0x5fbdb2315678afecb367f032d93f642f64180aa3",
-      "transactionHash": "0x863a8278352e6d9b486c3c448537c54092945bc9f1aa8ac0899331898718ab4f",
-      "blockNumber": 1
-    },
-    "0x534e5f5345504f4c4941": {
-      "network": "sepolia",
-      "address": "0x7a60e48f681e58d148ffa767cdd15c9d50b410877f7877259b27e1018087fd0",
-      "transactionHash": "0xc10831fafd290648ab8eee6eb0fea91a841b8e56b5d1f973e018405e356fbcdb",
-      "blockNumber": 5901219
+      "address": "0x2f6905caa9981af1ade028c3c609b4c8b0096e8ba3dff6aa22e9a7f86d2667d",
+      "transactionHash": "0x3739531f6cdf369d6a0d2078a8395524638b09f8f1c4a80a6fda4ea823da43f",
+      "blockNumber": ""
     }
   }
 }
