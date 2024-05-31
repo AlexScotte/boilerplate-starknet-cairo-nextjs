@@ -19,15 +19,15 @@ async function main() {
   const args = process.argv[2];
   if (args === "mainnet") {
     network.name = args;
-    network.chainId = 0x534e5f4d41494e;
+    network.chainId = "0x534e5f4d41494e";
     // Modify if necessary
     // nodeUrl = process.env.RPC_URL_SEPOLIA;
   } else if (args === "sepolia") {
     network.name = args;
-    network.chainId = 0x534e5f5345504f4c4941;
+    network.chainId = "0x534e5f5345504f4c4941";
   } else if (args === "goerli") {
     network.name = args;
-    network.chainId = 0x534e5f474f45524c49;
+    network.chainId = "0x534e5f474f45524c49";
     // Modify if necessary
     // nodeUrl = process.env.RPC_URL_SEPOLIA;
   } else {
@@ -143,10 +143,22 @@ async function declareContract(
 
   let declareResponse;
   try {
-    declareResponse = await deployerAccount.declare({
-      contract: contractClass,
-      casm: compiledContract,
-    });
+    const resp = await provider.getSpecVersion();
+    console.log("     RPC version =", resp);
+
+    const { suggestedMaxFee: estimatedDeclareFee } =
+      await deployerAccount.estimateDeclareFee({
+        contract: contractClass,
+        casm: compiledContract,
+      });
+
+    declareResponse = await deployerAccount.declare(
+      {
+        contract: contractClass,
+        casm: compiledContract,
+      },
+      { maxFee: (estimatedDeclareFee * 11n) / 10n }
+    );
     await provider.waitForTransaction(declareResponse.transaction_hash);
   } catch (error) {
     // If error, check if it's not because the contract is already declared
@@ -162,6 +174,12 @@ async function declareContract(
       };
     } else {
       console.log(error.message);
+      console.log(
+        "estimatedDeclareFee =",
+        estimatedDeclareFee.toString(),
+        "wei"
+      );
+
       throw new Error(`❌ Error when declaring the contract`);
     }
   }
@@ -210,7 +228,7 @@ async function saveFrontendFiles(contractName, contractAbi, deployResponse) {
   );
 
   console.log(
-    `🖍️ ⌛  Write deployed ${contractName} informations in ${frontContractFilePath} in progress...`
+    `🖍️ ⌛Write deployed ${contractName} informations in ${frontContractFilePath} in progress...`
   );
 
   if (!contractAbi) {

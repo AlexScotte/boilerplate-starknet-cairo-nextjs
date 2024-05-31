@@ -15,18 +15,17 @@ async function main() {
 
     const chain = process.argv[2];
     const contractAddress = process.argv[3];
-    console.log(process.argv);
     if (chain === "mainnet") {
       network.name = chain;
-      network.chainId = 0x534e5f4d41494e;
+      network.chainId = "0x534e5f4d41494e";
       // Modify if necessary
       // nodeUrl = process.env.RPC_URL_SEPOLIA;
     } else if (chain === "sepolia") {
       network.name = chain;
-      network.chainId = 0x534e5f5345504f4c4941;
+      network.chainId = "0x534e5f5345504f4c4941";
     } else if (chain === "goerli") {
       network.name = chain;
-      network.chainId = 0x534e5f474f45524c49;
+      network.chainId = "0x534e5f474f45524c49";
       // Modify if necessary
       // nodeUrl = process.env.RPC_URL_SEPOLIA;
     } else {
@@ -58,7 +57,7 @@ async function main() {
     contract.connect(account);
 
     await get(contract);
-    await set(contract, account, 1233);
+    await set(contract, provider, 6);
     await get(contract);
   } catch (error) {
     console.error(error);
@@ -82,12 +81,14 @@ async function get(contract) {
   }
 }
 
-async function set(contract, account, newValue) {
+async function set(contract, provider, newValue) {
   try {
     console.log(`📝⌛ Set new stored value to ${newValue} in progress...`);
     // SET VALUE
     const myCall = await contract?.populate("set", [newValue]);
-    const res = await account?.execute(myCall, undefined, { version: 3 });
+    const res = await contract?.set(myCall.calldata);
+    await provider.waitForTransaction(res.transaction_hash);
+
     console.log(`📝✅ Set stored value completed !`);
     console.log(res);
   } catch (error) {

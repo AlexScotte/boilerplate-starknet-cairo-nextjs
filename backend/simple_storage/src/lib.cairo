@@ -12,7 +12,6 @@ mod SimpleStorage {
     #[storage]
     struct Storage {
         stored_data: u128,
-        test: u128,
     }
 
     #[derive(Drop, starknet::Event)]
