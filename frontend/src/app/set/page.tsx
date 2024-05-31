@@ -39,12 +39,10 @@ const Set = () => {
   const isConnected = useStoreWallet(state => state.isConnected);
   const chainId = useStoreWallet(state => state.chainId);
   const expectedChainName = GetExpectedChainNameWithEnv();
-  // const { simpleStorageDeployedBlockNumber, simpleStorageAddress, simpleStorageAbi } = useContext<Contract>(ContractContext);
   const { simpleStorageAddress, simpleStorageAbi } = useContext<Contract>(ContractContext);
 
   const [newValue, setNewValue] = useState<number>(0);
   const [valueChangedEventList, setValueChangedEventList] = useState<ValueChangedEventType[]>([]);
-  // const { data } = useBlockNumber();
   const accountWallet = useStoreWallet(state => state.account);
   const publicProvider = useStoreWallet(state => state.publicProvider);
   const walletProvider = useStoreWallet(state => state.walletProvider);
@@ -250,18 +248,18 @@ const Set = () => {
     }
     else {
 
-      // if (GetFriendlyChainName(chainId) !== expectedChainName) {
+      if (GetFriendlyChainName(chainId) !== expectedChainName) {
 
-      //   toast.closeAll();
-      //   toast({
-      //     title: "Wrong network",
-      //     description: `Please switch to ${expectedChainName} network`,
-      //     status: "warning",
-      //     duration: 9999999,
-      //     containerStyle: ToastWarningStyle
-      //   })
-      //   return;
-      // }
+        toast.closeAll();
+        toast({
+          title: "Wrong network",
+          description: `Please switch to ${expectedChainName} network`,
+          status: "warning",
+          duration: 9999999,
+          containerStyle: ToastWarningStyle
+        })
+        return;
+      }
 
       console.log(walletProvider)
 

@@ -77,8 +77,14 @@
   "networks": {
     "0": {
       "network": "localhost",
-      "address": "0x2f6905caa9981af1ade028c3c609b4c8b0096e8ba3dff6aa22e9a7f86d2667d",
-      "transactionHash": "0x3739531f6cdf369d6a0d2078a8395524638b09f8f1c4a80a6fda4ea823da43f",
+      "address": "0xc9dc48d3be4c70cdd37197b57d35af381fab073d813a0eeef2ca6da2b51069",
+      "transactionHash": "0x3f65d3f616d683639f930f9473f7caec56df285b5e62ed262f480f52a6bbdbe",
+      "blockNumber": ""
+    },
+    "0x534e5f5345504f4c4941": {
+      "network": "sepolia",
+      "address": "0x5ec96379c03670f4e6fe021a67155aa3389866e337622ce85fa1bc43eedab1c",
+      "transactionHash": "0x4dabceaa8c18fc07ffa6be9a4a1d6deee54d7cbe42e5906152c7ece899d5a69",
       "blockNumber": ""
     }
   }

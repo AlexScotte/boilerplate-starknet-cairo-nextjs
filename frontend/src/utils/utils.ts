@@ -32,8 +32,8 @@ export const GetRPCProviderWithEnv = () => {
     } else {
 
         // TODO: Cannot interact with extension wallet on Devnet/localhost
-        //return process.env.NEXT_PUBLIC_PROVIDER_SEPOLIA_RPC;
-        return process.env.NEXT_PUBLIC_PROVIDER_LOCAL_RPC;
+        return process.env.NEXT_PUBLIC_PROVIDER_SEPOLIA_RPC;
+        //return process.env.NEXT_PUBLIC_PROVIDER_LOCAL_RPC;
     }
 };
 

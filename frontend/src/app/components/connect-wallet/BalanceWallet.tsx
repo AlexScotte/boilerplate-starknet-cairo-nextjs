@@ -3,8 +3,6 @@
 import { useEffect, useState } from 'react';
 import { Contract, uint256, shortString } from "starknet";
 
-// import { useStoreBlock } from "../Block/blockContext";
-
 import { Text, Center, Spinner, Flex } from "@chakra-ui/react";
 import { erc20Abi } from "@/contracts/ERC20abi"
 import { useStoreWallet } from "./walletContext";;
@@ -14,9 +12,8 @@ type Props = { tokenAddress: string };
 
 export default function BalanceWallet({ tokenAddress }: Props) {
 
-    // block context
-    // const blockFromContext = useStoreBlock(state => state.dataBlock);
     const accountAddress = useStoreWallet((state) => state.address);
+    const chainId = useStoreWallet((state) => state.chainId);
 
     const [balance, setBalance] = useState<number | undefined>(undefined);
     const [decimals, setDecimals] = useState<number>(18)
@@ -40,8 +37,7 @@ export default function BalanceWallet({ tokenAddress }: Props) {
                 setSymbol(res2);
             })
             .catch((e: any) => { console.log("error getSymbol=", e) });
-    }
-        , []);
+    }, [accountAddress]);
 
     useEffect(() => {
         contract.balanceOf(accountAddress)
@@ -52,9 +48,7 @@ export default function BalanceWallet({ tokenAddress }: Props) {
             }
             )
             .catch((e: any) => { console.log("error balanceOf=", e) });
-    }
-        // , [blockFromContext.block_number, decimals]); // balance updated at each block
-        , [decimals]); // balance updated at each block
+    }, [decimals, accountAddress]);
 
     return (
         <>
