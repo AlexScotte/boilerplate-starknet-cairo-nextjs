@@ -7,7 +7,7 @@ import { CallData, json } from "starknet";
 
 dotenv.config();
 
-const contractFrontFolder = "../../frontend/src/contracts";
+const contractFrontFolder = "../../src/frontend/src/contracts";
 
 const network = {};
 

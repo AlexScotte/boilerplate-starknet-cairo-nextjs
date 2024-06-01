@@ -97,74 +97,111 @@ mod SimpleStorage2 {
     }
 }
 
-
-// use starknet::prelude::*;
-// use starknet::testing::*;
-
-
 #[cfg(test)]
 mod tests {
 
-    use starknet::testing::pop_log;
-    // use starknet::{
-    //     deploy_syscall, ClassHash, class_hash_try_from_felt252, ContractAddress, 
-    //     contract_address_const, SyscallResultTrait,
-    // };
+    use super::{SimpleStorage, ISimpleStorage, ISimpleStorageDispatcher, ISimpleStorageDispatcherTrait};
+
     use starknet::{
-        ClassHash, ContractAddress, 
+        ClassHash, ContractAddress, Event, testing::pop_log,
         contract_address_const, SyscallResultTrait,
     };
-    use super::{SimpleStorage, ISimpleStorage, ISimpleStorageDispatcher, ISimpleStorageDispatcherTrait};
+    
     use snforge_std::{
-        declare, ContractClassTrait, ContractClass, start_cheat_caller_address,
+        declare,  ContractClassTrait, ContractClass, start_cheat_caller_address,
         stop_cheat_caller_address, SpyOn, EventSpy, EventAssertions, spy_events, EventFetcher, load,
         cheatcodes::storage::load_felt252
     };
 
     fn deploy_simple_storage() -> (ISimpleStorageDispatcher, ContractAddress) {
+
+        // First declare and deploy a contract
         let contract = declare("SimpleStorage").unwrap();
-        let owner: ContractAddress = contract_address_const::<'owner'>();
-    
-        let mut constructor_calldata = array![owner.into()];
-    
-        let (contract_address, _) = contract.deploy(@constructor_calldata).unwrap();
-    
+
+        // Alternatively we could use `deploy_syscall` here
+        let (contract_address, _) = contract.deploy(@array![]).unwrap();
+
+        // Create a Dispatcher object that will allow interacting with the deployed contract
         let dispatcher = ISimpleStorageDispatcher { contract_address };
-    
+
         (dispatcher, contract_address)
     }
 
-    // Utilisez MockedStarkNetClient pour simuler les interactions avec StarkNet
-
     #[test]
-    fn test_constructor() {
+    fn test_should_get_right_initial_stored_value() {
 
-        let (simple_storage, simple_storage_address) = deploy_simple_storage();
-        
-        // let pepperoni_count = load(pizza_factory_address, selector!("pepperoni"), 1);
-        // let pineapple_count = load(pizza_factory_address, selector!("pineapple"), 1);
-        // assert_eq!(pepperoni_count, array![10]);
-        // assert_eq!(pineapple_count, array![10]);
-
-        // assert_eq!(simple_storage.get(), 1);
-        simple_storage.set(10);
-        assert_eq!(simple_storage.get(), 10);
-    
-        // let client = MockedStarkNetClient::new();
-
-        // // Créez une instance de votre contrat en utilisant le client simulé
-        // let contract = SimpleStorage::deploy(&client).unwrap();
-
-        // // Testez la fonction set
-        // let tx_hash = contract.set(42u128).send().unwrap();
-        // assert!(tx_hash.is_ok(), "Transaction failed");
-
-        // // Vérifiez que la valeur a été mise à jour dans le contrat
-        // let result = contract.get().call().unwrap();
-        // assert_eq!(result, 42u128, "Stored value does not match expected value");
-
-        // Vous pouvez ajouter plus de tests ici pour vérifier d'autres aspects de votre contrat
+        let (simple_storage, _) = deploy_simple_storage();
+        let initialStoredValue = simple_storage.get();
+        assert_eq!(initialStoredValue, 1, "Initial stored value incorrect");
     }
 
-    // Ajoutez d'autres tests selon les besoins de votre contrat
+    #[test]
+    fn test_should_set_right_value() {
+
+        let (simple_storage, _) = deploy_simple_storage();
+
+        let initialStoredValue = simple_storage.get();
+        assert_eq!(initialStoredValue, 1, "Initial stored value incorrect");
+
+        simple_storage.set(123);
+        let newStoredValue = simple_storage.get();
+        assert_eq!(newStoredValue, 123, "new stored value incorrect");
+    }
+
+    #[test]
+    fn test_should_set_right_value_from_another_address() {
+
+        let (simple_storage, simple_storage_address) = deploy_simple_storage();
+
+        let initialStoredValue = simple_storage.get();
+        assert_eq!(initialStoredValue, 1, "Initial stored value incorrect");
+
+        // Change the caller address to 123 when calling the contract at the `contract_address` address
+        start_cheat_caller_address(simple_storage_address, 123.try_into().unwrap());
+        simple_storage.set(123);
+        let newStoredValue = simple_storage.get();
+        assert_eq!(newStoredValue, 123, "new stored value incorrect");
+    }
+    
+    #[test]
+    fn test_should_emit_event_after_setting_value() {
+
+        let (simple_storage, simple_storage_address) = deploy_simple_storage();
+
+        let oldValue = simple_storage.get();
+        let caller = 123;
+
+        let mut spy = spy_events(SpyOn::One(simple_storage_address));
+
+        start_cheat_caller_address(simple_storage_address, caller.try_into().unwrap());
+        simple_storage.set(2);
+
+        spy.assert_not_emitted(@array![
+            (
+                simple_storage_address,
+                SimpleStorage::Event::ValueChanged(
+                    SimpleStorage::ValueChanged { caller: 123, oldValue: oldValue, newValue: 2 }
+                )
+            )
+        ]);
+
+        // assert(spy.events.len() == 0, 'There should be no events');
+    
+        spy.fetch_events();  // Ad 2.
+
+        assert(spy.events.len() == 1, 'There should be one event');
+    
+        let (from, event) = spy.events.at(0); // Ad 3.
+        // assert(from == @contract_address, 'Emitted from wrong address');
+        assert_eq!(event.keys.len(), 2, "There should be one key");
+        assert_eq!(event.keys.at(0), @selector!("ValueChanged"), "Wrong event name"); // Ad 4.
+        assert_eq!(event.data.len(), 2, "There should be one data");
+        assert_eq!(event.data.at(0), 123, "Wrong data name"); // Ad 4.
+    
+        // dispatcher.emit_one_event(123);
+        // assert(spy.events.len() == 1, 'There should be one event'); // Ad 5. - Still one event
+    
+        // spy.fetch_events();
+        // assert(spy.events.len() == 2, 'There should be two events');
+    }
 }

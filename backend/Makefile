@@ -129,7 +129,7 @@ deploy:
 ifdef chain
 	@echo Deploying contract on ${chain}
 else
-	@echo No chain specified, using localhost by default (ex: chain=sepolia)
+	@echo No chain specified, using localhost by default "(ex: chain=sepolia)"
 endif
 	@node scripts/deploy.js ${chain}
 
@@ -137,7 +137,7 @@ getset:
 ifdef chain
 	@echo Testing contract on ${chain}
 else
-	@echo No chain specified, testing on localhost by default (ex: chain=sepolia)
+	@echo No chain specified, testing on localhost by default "(ex: chain=sepolia)"
 endif
 ifndef addr
 	$(error You need to specify the contract address (ex: addr=0x2f6905caa9981af1ade028c3c609b4c8b0096e8ba3dff6aa22e9a7f86d2667d))
