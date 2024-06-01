@@ -8,6 +8,9 @@ help:
 	@echo "  make node"
 	@echo "    Deploy a local starkNet-devnet node with 3 prefunded accounts"
 	@echo "\n"
+	@echo "  make get_faucet addr=0x023...Ad"
+	@echo "    Fund specify address with 1 faucet ETH"
+	@echo "\n"
 	@echo "  make deploy [chain=...]"
 	@echo "    example: make deploy -> to deploy by default on localhost"
 	@echo "	     make deploy chain=sepolia -> to deploy on sepolia"
@@ -16,13 +19,20 @@ help:
 	@echo "    example: make getset chain=localhost addr=0x2f...ef-> to interact with the contract on the specified chain"
 	@echo "\n"
 
-node:
-	starknet-devnet --seed 3
-		
 version:
 	scarb --version 
 	starkli --version 
 	katana --version
+
+node:
+	starknet-devnet --seed 3
+		
+get_faucet:
+ifndef addr
+	$(error You need to specify an account address to provide (ex: make get_faucet addr=0x023...Ad))
+endif
+
+	@curl -X POST -H "Content-Type: application/json" "http://127.0.0.1:5050/mint" -d '{"address": "${addr}", "amount": 1000000000000000000}'
 
 create_wallet:
 	make create_signer account=${account}
