@@ -58,9 +58,9 @@ This script will get the stored value, modified the stored value with the config
 
 ## Testing contract (optional)
 
-Launch the coverage command `make coverage` (or `forge coverage`) to build and test the contract.
+Launch the command `snforge test` to build and test the contract. You need to be in the contract folder to do that.
 
-![image](https://github.com/AlexScotte/boilerplate-foundry-nextjs-wagmi-rainbowkit/assets/53000621/a3f4075a-6c35-408c-be5d-cf6e14c74d48)
+<img width="872" alt="image" src="https://github.com/AlexScotte/boilerplate-starknet-cairo-nextjs/assets/53000621/99e59a02-9c75-4477-964d-9238f9b99919">
 
 </details>
 
