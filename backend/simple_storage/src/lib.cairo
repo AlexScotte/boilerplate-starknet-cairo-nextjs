@@ -15,16 +15,16 @@ mod SimpleStorage {
     }
 
     #[derive(Drop, starknet::Event)]
-    struct ValueChanged {
+    pub struct ValueChanged {
         #[key]
-        caller : ContractAddress,
-        oldValue : u128,
-        newValue : u128,
+        pub caller : ContractAddress,
+        pub oldValue : u128,
+        pub newValue : u128,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
-    enum Event {
+    pub enum Event {
         ValueChanged: ValueChanged,
     }
 
@@ -100,6 +100,7 @@ mod SimpleStorage2 {
 #[cfg(test)]
 mod tests {
 
+    use core::traits::TryInto;
     use super::{SimpleStorage, ISimpleStorage, ISimpleStorageDispatcher, ISimpleStorageDispatcherTrait};
 
     use starknet::{
@@ -169,39 +170,58 @@ mod tests {
         let (simple_storage, simple_storage_address) = deploy_simple_storage();
 
         let oldValue = simple_storage.get();
-        let caller = 123;
+        let newValue = 2;
+
+        let caller = 123.try_into().unwrap();
 
         let mut spy = spy_events(SpyOn::One(simple_storage_address));
 
         start_cheat_caller_address(simple_storage_address, caller.try_into().unwrap());
-        simple_storage.set(2);
+        
+        simple_storage.set(newValue);
 
-        spy.assert_not_emitted(@array![
+        spy.assert_emitted(@array![
             (
                 simple_storage_address,
                 SimpleStorage::Event::ValueChanged(
-                    SimpleStorage::ValueChanged { caller: 123, oldValue: oldValue, newValue: 2 }
+                    SimpleStorage::ValueChanged { caller: caller, oldValue: oldValue, newValue: newValue }
                 )
             )
         ]);
+    }
 
-        // assert(spy.events.len() == 0, 'There should be no events');
-    
-        spy.fetch_events();  // Ad 2.
+    #[test]
+    fn test_fuzz_should_set_right_value(x: u128) {
 
-        assert(spy.events.len() == 1, 'There should be one event');
-    
-        let (from, event) = spy.events.at(0); // Ad 3.
-        // assert(from == @contract_address, 'Emitted from wrong address');
-        assert_eq!(event.keys.len(), 2, "There should be one key");
-        assert_eq!(event.keys.at(0), @selector!("ValueChanged"), "Wrong event name"); // Ad 4.
-        assert_eq!(event.data.len(), 2, "There should be one data");
-        assert_eq!(event.data.at(0), 123, "Wrong data name"); // Ad 4.
-    
-        // dispatcher.emit_one_event(123);
-        // assert(spy.events.len() == 1, 'There should be one event'); // Ad 5. - Still one event
-    
-        // spy.fetch_events();
-        // assert(spy.events.len() == 2, 'There should be two events');
+        let (simple_storage, _) = deploy_simple_storage();
+
+        simple_storage.set(x);
+        let newStoredValue = simple_storage.get();
+        assert_eq!(newStoredValue, x, "new stored value incorrect");
+    }
+
+    #[test]
+    fn test_fuzz_should_emit_event_after_setting_value(x: u128) {
+
+        let (simple_storage, simple_storage_address) = deploy_simple_storage();
+
+        let oldValue = simple_storage.get();
+
+        let caller = 123.try_into().unwrap();
+
+        let mut spy = spy_events(SpyOn::One(simple_storage_address));
+
+        start_cheat_caller_address(simple_storage_address, caller.try_into().unwrap());
+        
+        simple_storage.set(x);
+
+        spy.assert_emitted(@array![
+            (
+                simple_storage_address,
+                SimpleStorage::Event::ValueChanged(
+                    SimpleStorage::ValueChanged { caller: caller, oldValue: oldValue, newValue: x }
+                )
+            )
+        ]);
     }
 }
